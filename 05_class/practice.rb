@@ -1,25 +1,59 @@
-# create a new Class, User, that has the following attributes:
-# - name
-# - email
-# - password
-
-
-# create a new Class, Room, that has the following attributes:
-# - name
-# - description
-# - users
-
-# create a new Class, Message, that has the following attributes:
-# - user
-# - room
-# - content
-
-# add a method to user so, user can enter to a room
-# user.enter_room(room)
-
-# add a method to user so, user can send a message to a room
-# user.send_message(room, message)
-# user.ackowledge_message(room, message)
-
-# add a method to a room, so it can broadcast a message to all users
-# room.broadcast(message)
+class User
+    attr_accessor :name, :email, :password
+  
+    def initialize(name, email, password)
+      @name = name
+      @email = email
+      @password = password
+      @rooms = []
+    end
+  
+    def enter_room(room)
+      @rooms << room unless @rooms.include?(room)
+      room.add_user(self)
+    end
+  
+    def send_message(room, content)
+      if @rooms.include?(room)
+        message = Message.new(self, room, content)
+        room.broadcast(message)
+      else
+        puts "#{name} is not in the room '#{room.name}'."
+      end
+    end
+  
+    def acknowledge_message(room, message)
+      puts "#{name} acknowledged message in '#{room.name}': #{message.content}"
+    end
+  end
+  
+  class Room
+    attr_accessor :name, :description, :users
+  
+    def initialize(name, description)
+      @name = name
+      @description = description
+      @users = []
+    end
+  
+    def add_user(user)
+      @users << user unless @users.include?(user)
+    end
+  
+    def broadcast(message)
+      @users.each do |user|
+        user.acknowledge_message(self, message)
+      end
+    end
+  end
+  
+  class Message
+    attr_accessor :user, :room, :content
+  
+    def initialize(user, room, content)
+      @user = user
+      @room = room
+      @content = content
+    end
+  end
+  
